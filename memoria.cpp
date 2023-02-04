@@ -88,9 +88,9 @@ int main() {
 	
 	// Informa o tempo até que o jogo comece
 	printf("\nIniciando jogo em:");
-	for (i=5; i>=0; i--) {
+	for (i=s/1000; i>=0; i--) {
 		printf(" %d", i);
-		Sleep(1000);
+		Sleep(s/(s/1000));
 	}
 	
 	// Inicia Jogo
