@@ -4,7 +4,7 @@
 #include <windows.h>
 #include <conio.h>
 #include <locale.h>
-//#define tamanho 4 // Largura/altura da matriz quadrada
+#include <string.h>
 #define s 5000 // Tempo (ms) para o usuario memorizar o tabuleiro
 
 //Protótipos
@@ -13,17 +13,17 @@ void imprimeTabuleiro(char **, int);
 void jogar(int);
 int dificuldade();
 char **criarMatriz(int);
+int iniciarJogo();
 
 int main() {
 	setlocale(LC_ALL, "Portuguese");
 	int continuar = 0, escolha;
-	int tamanho;
-	
+
 	do {
 		system("cls");
 		printf("Seja bem vindo ao jogo da memória!\n");
 		printf("\n 1 - Jogar");
-		printf("\n 2 - Placar");
+		printf("\n 2 - Highscores");
 		printf("\n 0 - Sair");
 		
 		printf("\n\nDigite a opção que desejar: ");
@@ -34,10 +34,7 @@ int main() {
 		
 		switch (escolha) {
 			case 1:
-				//Pergunta ao usuário a dificuldade
-				tamanho = dificuldade();
-				if (tamanho != 0)
-					jogar(tamanho);
+				iniciarJogo();
 				break;
 			/*case 2:
 				ranking();
@@ -58,6 +55,28 @@ int main() {
 	return 0;
 }
 
+int iniciarJogo() {
+	char nome[30];
+	char *nome_arquivo;
+	int tamanho;
+	
+	system("cls");
+	printf("Digite o nome do jogador: ");
+	gets(nome);
+	
+	nome_arquivo = strcat(nome, ".cum");
+	if (fopen(nome, "rb")) {
+		
+	} else {
+		
+	}
+	
+	tamanho = dificuldade();
+	if (tamanho != 0)
+		jogar(tamanho);
+	return 0;
+}
+
 void jogar(int tamanho) {
 	
 	system("cls");
@@ -69,6 +88,7 @@ void jogar(int tamanho) {
 	int linha[2], coluna[2];
 	int invalido=0;
 	int score = 0;
+	int vidas = 3;
 	
 	tabuleiro = criarMatriz(tamanho);
 	tabuleiroJogo = criarMatriz(tamanho);
