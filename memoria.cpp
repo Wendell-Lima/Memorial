@@ -2,8 +2,22 @@
 #include <stdlib.h>
 #include <time.h>
 #include <windows.h>
+#include <conio.h>
+#include <locale.h>
 #define m 4 // Largura/altura da matriz quadrada
 #define s 5000 // Tempo (ms) para o usuario memorizar o tabuleiro
+
+/*
+void imprimirMatriz(char matriz[m][m]) {
+	int i, j;
+	for (i=0; i<m; i++) {
+		printf("%d | ", i);
+		for (j=0; j<m; j++) {
+			printf("%c  ", matriz[i][j]);
+		}
+	}
+}
+*/
 
 int espacosVazios(char matriz[m][m]) {
 	int cont=0, i, j;
@@ -35,25 +49,17 @@ void imprimeTabuleiro(char matriz[m][m]) {
 	}
 }
 
-/*
-void imprimirMatriz(char matriz[m][m]) {
-	int i, j;
-	for (i=0; i<m; i++) {
-		printf("%d | ", i);
-		for (j=0; j<m; j++) {
-			printf("%c  ", matriz[i][j]);
-		}
-	}
-}
-*/
-
-int main() {
+void jogar(){
+	
+	system("cls");
+	
 	char tabuleiro[m][m], tabuleiroJogo[m][m];
 	int numCartas = m*m/2;
 	char cartas[numCartas];
 	int cont=0, i, j, k;
 	int linha[2], coluna[2];
 	int invalido=0;
+	int score = 0;
 	
 	// Inicializando cartas
 	for (i=0; i<numCartas; i++)
@@ -102,6 +108,7 @@ int main() {
 			coluna[i] = -1;
 			do {
 				invalido = 0;
+				printf("\nScore: %d",score);
 				printf("\nDigite a linha e a coluna da carta (separados por espaco): ");
 				scanf("%d %d", &linha[i], &coluna[i]);
 				fflush(stdin);
@@ -130,8 +137,50 @@ int main() {
 			tabuleiroJogo[linha[0]][coluna[0]] = '*';
 			tabuleiroJogo[linha[1]][coluna[1]] = '*';
 		}
+		else //caso não tenha errado, score +1
+			score++;
+			
 	} while (linha[i]+coluna[i]!=6);
+}
+
+
+int main() {
+	setlocale(LC_ALL, "Portuguese");
 	
+	int continuar = 0, escolha;
+	do{
+		system("cls");
+		printf("Seja bem vindo ao jogo da memória!\n");
+		printf("\n 1 - Jogar");
+		printf("\n 2 - Placar");
+		printf("\n 0 - Sair");
+		
+		printf("\n\nDigite a opçãoo que desejar: ");
+		escolha = getche();
+		escolha -= 48;
+		fflush(stdin);
+		
+		switch (escolha) {
+			case 1:
+				jogar();
+				break;
+			/*case 2:
+				ranking();
+				break*/
+			case 0: // Sair / Fechar
+				printf("Fechando...\n");
+				Sleep(500);
+				continuar = 1;
+				break;
+			default:
+				printf("Opção inválida!\n");
+				Sleep(500);
+				break;
+		}
+	}while(!continuar);
+
 	system("pause");
 	return 0;
 }
+
+
