@@ -279,7 +279,6 @@ void listarRanking(){
 	fp = abrirArquivo((char *) "ranking", (char *) ".rf");
 	rank = carregarRank(fp);
 	
-	fseek(fp, 0, SEEK_SET);
 	for (i=0; i<10; i++) {
 		switch (rank.lista[i].dificuldade) {
 			case 1:
@@ -295,7 +294,7 @@ void listarRanking(){
 				printf("| %2d | %-29s | %5d | Dificil        |\n", i+1, rank.lista[i].jogador, rank.lista[i].score);
 				break;
 			default:
-				printf("| %2d | %-29s | %5d |                |\n", i+1, rank.lista[i].jogador, rank.lista[i].score);
+				printf("| %2d | %-29s |       |                |\n", i+1, "");
 				break;
 		}
 	}
@@ -309,25 +308,27 @@ void listarRanking(){
 void verificarRank(Jogo jogo) {
 	FILE *fp;
 	Rank rank;
-	int i, posicaoGarantida=11;
+	int i, posicaoGarantida=10;
 	
-	//fp = abrirArquivo((char *) "ranking", (char *) ".rf");
 	fp = fopen("ranking.rf", "r+b");
 	
 	rank = carregarRank(fp);
 	
+	// Verifica em que posicao se encaixa no ranking
 	for (i=9; i>=0; i--) {
 		if (jogo.score > rank.lista[i].score) posicaoGarantida = i;
 		else break;
 	}
 	
-	if (posicaoGarantida < 10) {
+	// Move todos as linhas abaixo da que o jogador vai se encaixar para baixo
+	if (posicaoGarantida < 9) {
 		for (i=9; i>posicaoGarantida; i--) {
 			rank.lista[i] = rank.lista[i-1];
 		}
 		rank.lista[i] = jogo;
 	}
 	
+	// Grava o novo ranking
 	fseek(fp, 0, SEEK_SET);
 	gravarRank(fp, rank);
 	fclose(fp);
@@ -339,16 +340,17 @@ void inicializarRanking() {
 	Rank rank;
 	int i;
 	
+	// Garante a criacao do arquivo
 	fp = abrirArquivo((char *) "ranking", (char *) ".rf");
-	fclose(fp);
-	fp = fopen("ranking.rf", "r+b");
 	
+	// Coloca valores padrao para jogo
 	for (i=9; i>=0; i--) {
 		strcpy(rank.lista[i].jogador, "");
 		rank.lista[i].score = 0;
 		rank.lista[i].dificuldade = 0;
 	}
 	
+	// Grava o ranking inicializado
 	fseek(fp, 0, SEEK_SET);
 	gravarRank(fp, rank);
 	fclose(fp);
