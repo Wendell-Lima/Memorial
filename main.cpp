@@ -7,14 +7,14 @@
 #include <string.h>
 #include "arquivos-lib.h"
 #define extensao ((char *) ".cum")
-#define s 2000 // Tempo (ms) para o usuario memorizar o tabuleiro
+#define s 5000 // Tempo (ms) para o usuario memorizar o tabuleiro
 
 //Protótipos
 int espacosVazios(char [8][8], int);
 void imprimeTabuleiro(char [8][8], int);
 int prepararJogo();
 void iniciarJogo(char *, int, int);
-int dificuldade();
+int menuDificuldade();
 char **criarMatriz(int);
 void listarRanking();
 void inicializarRanking();
@@ -24,6 +24,7 @@ int main(int argc, char *argv[]) {
 	setlocale(LC_ALL, "Portuguese");
 	int continuar = 0, escolha;
 
+	// Menu principal
 	do {
 		system("cls");
 		printf("Seja bem vindo ao jogo da memória!\n");
@@ -38,10 +39,10 @@ int main(int argc, char *argv[]) {
 		fflush(stdin);
 		
 		switch (escolha) {
-			case 1:
+			case 1: //Jogar
 				prepararJogo();
 				break;
-			case 2:
+			case 2: // Highscore
 				listarRanking();
 				break;
 			case 0: // Sair / Fechar
@@ -60,6 +61,7 @@ int main(int argc, char *argv[]) {
 	return 0;
 }
 
+// Funcao que deixa o jogo proprio para ser iniciado, seja ele um novo jogo ou um jogo carregado
 int prepararJogo() {
 	char nome[30];
 	int tamanho;
@@ -92,13 +94,14 @@ int prepararJogo() {
 	}
 	
 	if (novoJogo)
-		tamanho = dificuldade();
+		tamanho = menuDificuldade();
 	
-	if (tamanho != 0 || novoJogo == 0)
+	if (!novoJogo || tamanho != 0)
 		iniciarJogo(nome, tamanho, novoJogo);
 	return 0;
 }
 
+// Inicia um novo jogo, seja ele novo ou carregado
 void iniciarJogo(char *jogador, int tamanho, int novoJogo) {
 	
 	system("cls");
@@ -106,28 +109,32 @@ void iniciarJogo(char *jogador, int tamanho, int novoJogo) {
 	FILE *fp;
 	Jogo jogo;
 	
+	// Cria ou carrega um jogo a depender do que for solicitado
 	if (novoJogo) {
 		strcpy(jogo.jogador, jogador);
-		//jogo.tabuleiro = criarMatriz(tamanho);
-		//jogo.tabuleiroJogo = criarMatriz(tamanho);
 		jogo.score = 0;
-		jogo.vidas = 300;
+		jogo.vidas = 6;
 		jogo.dificuldade = tamanho/2;
 	} else {
 		jogo = carregarJogo(fp);
 		tamanho = jogo.dificuldade * 2;
 	}
-		
+	
+	// Inicializando variaveis
 	int numCartas = tamanho*tamanho/2;
 	char cartas[numCartas];
 	int dificuldade = tamanho/2;
 	int cont=0, i, j, k;
-	int linha[2], coluna[2];
+	int linha[2], coluna[2]; // Variaveis para entrada do usuario
 	int invalido=0;
 	
 	// Inicializando cartas
-	for (i=0; i<numCartas; i++)
-		cartas[i] = 65 + i; // 65 e o numero na tabela ascii onde comeca o alfabeto maiusculo
+	for (i=0; i<numCartas; i++) {
+		if (i<26)
+			cartas[i] = 65 + i; // 65 e o numero na tabela ascii onde comeca o alfabeto maiusculo
+		else
+			cartas[i] = 65 + i + 6; // Faz a transicao to alfabeto maiusculo para o minusculo
+	}
 	
 	if (novoJogo) {
 		// Inicializando o tabuleiro e tabuleiroJogo
@@ -161,12 +168,12 @@ void iniciarJogo(char *jogador, int tamanho, int novoJogo) {
 	
 	// Informa o tempo até que o jogo comece
 	printf("\nIniciando jogo em:");
-	for (i=s/1000; i>=0; i--) {
+	for (i=s/1000; i>0; i--) {
 		printf(" %d", i);
 		Sleep(1000);
 	}
 	
-	// Inicia Jogo
+	// Loop do jogo
 	do {
 		for (i=0; i<2; i++) {
 			system("cls");
@@ -227,6 +234,7 @@ void iniciarJogo(char *jogador, int tamanho, int novoJogo) {
 		
 	} while (espacosVazios(jogo.tabuleiroJogo, tamanho) != 0 && jogo.vidas != 0);
 	
+	// Verifica se perdeu ou ganhou o jogo
 	if (jogo.vidas == 0) {
 		printf("\nVocê perdeu, suas vidas chegaram a zero...");
 		printf("\nScore: %d\n", jogo.score);
@@ -235,14 +243,18 @@ void iniciarJogo(char *jogador, int tamanho, int novoJogo) {
 		printf("\nScore: %d", jogo.score);
 		jogo.score += jogo.vidas;
 		printf("\nScore + vidas: %d\n\n", jogo.score);
-		if (!verificarArquivo("ranking", ".rf"))
+		
+		// Caso o arquivo de ranking nao exista, cria e inicializa
+		if (!verificarArquivo((char *) "ranking", (char *) ".rf"))
 			inicializarRanking();
+		
+		// Verifica se entrou no rank e em que posicao
 		verificarRank(jogo);
 	}
 	
-	// Remove um arquivo assim que o jogo acaba
+	// Remove o arquivo de save assim que o jogo acaba
 	apagarArquivo(jogador, extensao);
-		
+	
 	system("pause");
 }
 
@@ -251,7 +263,8 @@ void listarRanking(){
 	FILE *fp;
 	Rank rank;
 	
-	if (!verificarArquivo("ranking", ".rf"))
+	// Caso o arquivo de ranking nao exista, cria e inicializa
+	if (!verificarArquivo((char *) "ranking", (char *) ".rf"))
 		inicializarRanking();
 	
 	system("cls");
@@ -273,16 +286,16 @@ void listarRanking(){
 				printf("| %2d | %-29s | %5d | Café com leite |\n", i+1, rank.lista[i].jogador, rank.lista[i].score);
 				break;
 			case 2:
-				printf("| %2d | %-29s | %5d | Facil          |\n", i+1, rank.lista[i].jogador, rank.lista[i].score, rank.lista[i].dificuldade);
+				printf("| %2d | %-29s | %5d | Facil          |\n", i+1, rank.lista[i].jogador, rank.lista[i].score);
 				break;
 			case 3:
-				printf("| %2d | %-29s | %5d | Medio          |\n", i+1, rank.lista[i].jogador, rank.lista[i].score, rank.lista[i].dificuldade);
+				printf("| %2d | %-29s | %5d | Medio          |\n", i+1, rank.lista[i].jogador, rank.lista[i].score);
 				break;
 			case 4:
-				printf("| %2d | %-29s | %5d | Dificil        |\n", i+1, rank.lista[i].jogador, rank.lista[i].score, rank.lista[i].dificuldade);
+				printf("| %2d | %-29s | %5d | Dificil        |\n", i+1, rank.lista[i].jogador, rank.lista[i].score);
 				break;
 			default:
-				printf("| %2d | %-29s | %5d | BOT            |\n", i+1, rank.lista[i].jogador, rank.lista[i].score, rank.lista[i].dificuldade);
+				printf("| %2d | %-29s | %5d |                |\n", i+1, rank.lista[i].jogador, rank.lista[i].score);
 				break;
 		}
 	}
@@ -292,6 +305,7 @@ void listarRanking(){
 	system("pause");
 }
 
+// Verifica se um jogo entra para o rank e o insere na devida posicao caso tenha entrado
 void verificarRank(Jogo jogo) {
 	FILE *fp;
 	Rank rank;
@@ -319,6 +333,7 @@ void verificarRank(Jogo jogo) {
 	fclose(fp);
 }
 
+// Inicializa um ranking inicial toda vez que o arquivo de ranking nao existir
 void inicializarRanking() {
 	FILE *fp;
 	Rank rank;
@@ -328,7 +343,7 @@ void inicializarRanking() {
 	fclose(fp);
 	fp = fopen("ranking.rf", "r+b");
 	
-	for (i=10; i>0; i--) {
+	for (i=9; i>=0; i--) {
 		strcpy(rank.lista[i].jogador, "");
 		rank.lista[i].score = 0;
 		rank.lista[i].dificuldade = 0;
@@ -339,7 +354,8 @@ void inicializarRanking() {
 	fclose(fp);
 }
 
-int dificuldade() {
+// Menu para selecao de dificuldade, retorna o tamanho da matriz quadrada referente a dificuldade (tamanho = dificuldade * 2)
+int menuDificuldade() {
 	int continuar = 0;
 	int dificuldade;
 	
@@ -383,6 +399,7 @@ int dificuldade() {
 	} while(!continuar);
 }
 
+// Retorna quantos espacos vazios ou nao acertados ainda restam em um tabuleiro
 int espacosVazios(char matriz[8][8], int tamanho) {
 	int cont=0, i, j;
 	for (i=0; i<tamanho; i++)
@@ -394,6 +411,7 @@ int espacosVazios(char matriz[8][8], int tamanho) {
 	return cont;
 }
 
+// Imprime um tabuleiro formatado para o jogo
 void imprimeTabuleiro(char matriz[8][8], int tamanho) {
 	int i, j;
 	printf("  | ");
@@ -413,6 +431,7 @@ void imprimeTabuleiro(char matriz[8][8], int tamanho) {
 	}
 }
 
+// Cria dinamicamente uma matriz
 char **criarMatriz(int tamanho) {
 	char **matriz;
 	int i;
