@@ -125,6 +125,7 @@ void iniciarJogo(char *jogador, int tamanho, int novoJogo) {
 			case 1: jogo.vidas = 3; break;
 			case 2: jogo.vidas = 5; break;
 			case 3: jogo.vidas = 7; break;
+			case 4: jogo.vidas = 9; break;
 			default: jogo.vidas = 5; break;
 		}
 		jogo.dificuldade = tamanho / 2;
