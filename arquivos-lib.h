@@ -10,6 +10,11 @@ typedef struct {
 	int vidas;
 } Jogo;
 
+
+typedef struct {
+	Jogo lista[10];
+} Rank;
+
 int verificarArquivo(char[30], char *);
 void criarArquivo(char[30], char *);
 FILE *abrirArquivo(char[30], char *);

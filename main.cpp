@@ -16,6 +16,7 @@ int prepararJogo();
 void iniciarJogo(char *, int, int);
 int dificuldade();
 char **criarMatriz(int);
+void ranking(); 
 
 int main(int argc, char *argv[]) {
 	setlocale(LC_ALL, "Portuguese");
@@ -38,9 +39,9 @@ int main(int argc, char *argv[]) {
 			case 1:
 				prepararJogo();
 				break;
-			/*case 2:
+			case 2:
 				ranking();
-				break*/
+				break;
 			case 0: // Sair / Fechar
 				printf("\nFechando...\n");
 				Sleep(500);
@@ -218,8 +219,40 @@ void iniciarJogo(char *jogador, int tamanho, int novoJogo) {
 			jogo.score++;
 			
 	} while (espacosVazios(jogo.tabuleiroJogo, tamanho) != 0);
+	//ranking(Jogo jogo);
+	
+	limparArquivo(jogador, extensao);
+	fp = abrirArquivo(jogador, extensao);
+	gravarJogo(fp, jogo);
+	fclose(fp);
+	
+	printf("\nParabéns você ganhou!");
+	printf("\nScore: %d\n", jogo.score);
+	system("pause");
 }
-
+void ranking(){
+	int i;
+	system("cls");
+	printf("\n");
+	printf(" ");
+	for (i = 0; i < 60; i++) printf("_");
+	
+	printf("\n| Nº | %11sJogador%11s | Score | %1sDificuldade%1s |\n", "", "","",""); // Cabecalho
+	printf("|----+-------------------------------+-------+----------------\n");
+	
+	// Parte lógica
+//	fseek(fp, 0, SEEK_SET);
+//	
+//	while (!feof(fp)) {
+//		fread(&jogo, sizeof(jogo), 1, fp);
+//		if (!feof(fp))
+//			//printf("| %12s | %-50s | %10.2f |\n", registro.CPF, registro.nome, registro.salario);
+//	}
+	
+	// Linha de baixo da tabela
+	printf("|____|_______________________________|_______|_______________|\n");
+	system("pause");
+}
 int dificuldade() {
 	int continuar = 0;
 	int dificuldade;

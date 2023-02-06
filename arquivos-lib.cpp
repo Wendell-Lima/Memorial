@@ -11,6 +11,10 @@ typedef struct {
 	int vidas;
 } Jogo;
 
+typedef struct {
+	Jogo lista[10];
+} Rank;
+
 // Verifica se um arquivo existe ou nao no mesmo nivel de pastas
 int verificarArquivo(char nome[30], char *extensao) {
 	FILE *fp;
