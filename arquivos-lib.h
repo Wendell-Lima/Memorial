@@ -20,6 +20,9 @@ void criarArquivo(char[30], char *);
 FILE *abrirArquivo(char[30], char *);
 void gravarJogo(FILE *, Jogo);
 Jogo carregarJogo(FILE *);
+void gravarRank(FILE *, Rank);
+Rank carregarRank(FILE *);
 void limparArquivo(char[30], char *);
+void apagarArquivo(char[30], char *);
 
 #endif

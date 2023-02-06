@@ -80,6 +80,18 @@ Jogo carregarJogo(FILE *fp) {
 	return jogo;
 }
 
+void gravarRank(FILE *fp, Rank rank) {
+	fseek(fp, 0, SEEK_SET);
+	fwrite(&rank, sizeof(Rank), 1, fp);
+}
+
+Rank carregarRank(FILE *fp) {
+	Rank rank;
+	fseek(fp, 0, SEEK_SET);
+	fread(&rank, sizeof(Rank), 1, fp);
+	return rank;
+}
+
 void limparArquivo(char nome[30], char *extensao) {
 	FILE *fp;
 	char nome_arquivo[40];
@@ -89,4 +101,11 @@ void limparArquivo(char nome[30], char *extensao) {
 	fp = fopen(nome_arquivo, "wb");
 	
 	fclose(fp);
+}
+
+void apagarArquivo(char nome[30], char *extensao) {
+	char nome_arquivo[40];
+	strcpy(nome_arquivo, nome);
+	strcat(nome_arquivo, extensao);
+	remove(nome_arquivo);
 }
