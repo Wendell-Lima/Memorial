@@ -67,10 +67,18 @@ int prepararJogo() {
 	int tamanho;
 	int novoJogo=1;
 	
-	system("cls");
-	printf("Digite o nome do jogador: ");
-	gets(nome);
-	fflush(stdin);
+	do {
+		system("cls");
+		printf("Digite o nome do jogador: ");
+		gets(nome);
+		fflush(stdin);
+		
+		if (strlen(nome) == 0 || strlen(nome) == NULL) return 0;
+		if (strlen(nome) > 30) {
+			printf("\nNome muito grande! Tente outra coisa...");
+			system("pause");
+		}
+	} while (strlen(nome) > 30);
 	
 	// Verifica se já existe um jogo
 	if (verificarArquivo(nome, extensao)) {
@@ -266,6 +274,7 @@ void iniciarJogo(char *jogador, int tamanho, int novoJogo) {
 	system("pause");
 }
 
+// Exibe a tabela de melhores pontuacoes salvas
 void listarRanking(){
 	int i;
 	FILE *fp;
@@ -310,6 +319,8 @@ void listarRanking(){
 	// Linha de baixo da tabela
 	printf("|____|_______________________________|_______|________________|\n");
 	system("pause");
+	
+	fclose(fp);
 }
 
 // Verifica se um jogo entra para o rank e o insere na devida posicao caso tenha entrado
