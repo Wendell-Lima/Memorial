@@ -119,9 +119,12 @@ void iniciarJogo(char *jogador, int tamanho, int novoJogo) {
 			case 3: jogo.vidas = 7; break;
 			default: jogo.vidas = 5; break;
 		}
-		jogo.dificuldade = tamanho/2;
+		jogo.dificuldade = tamanho / 2;
 	} else {
+		fp = abrirArquivo(jogador, extensao);
 		jogo = carregarJogo(fp);
+		fclose(fp);
+		apagarArquivo(jogador, extensao);
 		tamanho = jogo.dificuldade * 2;
 	}
 	
@@ -236,9 +239,6 @@ void iniciarJogo(char *jogador, int tamanho, int novoJogo) {
 		fp = abrirArquivo(jogador, extensao);
 		gravarJogo(fp, jogo);
 		fclose(fp);
-		
-		printf("\n\n%d\n\n", jogo.dificuldade);
-		system("pause");
 		
 	} while (espacosVazios(jogo.tabuleiroJogo, tamanho) != 0 && jogo.vidas != 0);
 	
