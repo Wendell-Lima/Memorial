@@ -10,8 +10,8 @@
 #define s 5000 // Tempo (ms) para o usuario memorizar o tabuleiro
 
 //Protótipos
-int espacosVazios(char **, int);
-void imprimeTabuleiro(char **, int);
+int espacosVazios(char [8][8], int);
+void imprimeTabuleiro(char [8][8], int);
 int prepararJogo();
 void iniciarJogo(char *, int, int);
 int dificuldade();
@@ -104,8 +104,8 @@ void iniciarJogo(char *jogador, int tamanho, int novoJogo) {
 	
 	if (novoJogo) {
 		strcpy(jogo.jogador, jogador);
-		jogo.tabuleiro = criarMatriz(tamanho);
-		jogo.tabuleiroJogo = criarMatriz(tamanho);
+		//jogo.tabuleiro = criarMatriz(tamanho);
+		//jogo.tabuleiroJogo = criarMatriz(tamanho);
 		jogo.score = 0;
 		jogo.vidas = 3;
 		jogo.dificuldade = tamanho/2;
@@ -116,6 +116,7 @@ void iniciarJogo(char *jogador, int tamanho, int novoJogo) {
 		
 	int numCartas = tamanho*tamanho/2;
 	char cartas[numCartas];
+	int dificuldade = tamanho/2;
 	int cont=0, i, j, k;
 	int linha[2], coluna[2];
 	int invalido=0;
@@ -124,15 +125,15 @@ void iniciarJogo(char *jogador, int tamanho, int novoJogo) {
 	for (i=0; i<numCartas; i++)
 		cartas[i] = 65 + i; // 65 e o numero na tabela ascii onde comeca o alfabeto maiusculo
 	
-	// Inicializando o tabuleiro e tabuleiroJogo
-	for (i=0; i<tamanho; i++) {
-		for (j=0; j<tamanho; j++) {
-			jogo.tabuleiro[i][j] = ' ';
-			jogo.tabuleiroJogo[i][j] = '*';
-		}
-	}
-	
 	if (novoJogo) {
+		// Inicializando o tabuleiro e tabuleiroJogo
+		for (i=0; i<tamanho; i++) {
+			for (j=0; j<tamanho; j++) {
+				jogo.tabuleiro[i][j] = ' ';
+				jogo.tabuleiroJogo[i][j] = '*';
+			}
+		}
+		
 		// Monta o tabuleiro
 		srand(time(NULL));
 		while (espacosVazios(jogo.tabuleiro, tamanho) > 0) {
@@ -263,7 +264,7 @@ int dificuldade() {
 	} while(!continuar);
 }
 
-int espacosVazios(char **matriz, int tamanho) {
+int espacosVazios(char matriz[8][8], int tamanho) {
 	int cont=0, i, j;
 	for (i=0; i<tamanho; i++)
 		for (j=0; j<tamanho; j++) 
@@ -274,7 +275,7 @@ int espacosVazios(char **matriz, int tamanho) {
 	return cont;
 }
 
-void imprimeTabuleiro(char **matriz, int tamanho) {
+void imprimeTabuleiro(char matriz[8][8], int tamanho) {
 	int i, j;
 	printf("  | ");
 	for (i=0; i<tamanho; i++)

@@ -4,12 +4,13 @@
 typedef struct {
 	int dificuldade;
 	char jogador[30];
-	char **tabuleiro;
-	char **tabuleiroJogo;
+	char tabuleiro[8][8];
+	char tabuleiroJogo[8][8];
 	int score;
 	int vidas;
 } Jogo;
 
+char **criarMatriz(int);
 int verificarArquivo(char[30], char *);
 void criarArquivo(char[30], char *);
 FILE *abrirArquivo(char[30], char *);
