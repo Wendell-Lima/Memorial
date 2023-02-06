@@ -123,8 +123,8 @@ void iniciarJogo(char *jogador, int tamanho, int novoJogo) {
 	// Inicializando variaveis
 	int numCartas = tamanho*tamanho/2;
 	char cartas[numCartas];
-	int dificuldade = tamanho/2;
 	int cont=0, i, j, k;
+	int dificuldade = tamanho/2;
 	int linha[2], coluna[2]; // Variaveis para entrada do usuario
 	int invalido=0;
 	
@@ -243,14 +243,14 @@ void iniciarJogo(char *jogador, int tamanho, int novoJogo) {
 		printf("\nScore: %d", jogo.score);
 		jogo.score += jogo.vidas;
 		printf("\nScore + vidas: %d\n\n", jogo.score);
-		
-		// Caso o arquivo de ranking nao exista, cria e inicializa
-		if (!verificarArquivo((char *) "ranking", (char *) ".rf"))
-			inicializarRanking();
-		
-		// Verifica se entrou no rank e em que posicao
-		verificarRank(jogo);
 	}
+	
+	// Caso o arquivo de ranking nao exista, cria e inicializa
+	if (!verificarArquivo((char *) "ranking", (char *) ".rf"))
+		inicializarRanking();
+	
+	// Verifica se entrou no rank e em que posicao
+	verificarRank(jogo);
 	
 	// Remove o arquivo de save assim que o jogo acaba
 	apagarArquivo(jogador, extensao);
