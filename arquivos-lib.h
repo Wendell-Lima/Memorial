@@ -10,6 +10,10 @@ typedef struct {
 	int vidas;
 } Jogo;
 
+typedef struct {
+	Jogo lista[10];
+} Rank;
+
 char **criarMatriz(int);
 int verificarArquivo(char[30], char *);
 void criarArquivo(char[30], char *);
