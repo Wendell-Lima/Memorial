@@ -16,7 +16,9 @@ int prepararJogo();
 void iniciarJogo(char *, int, int);
 int dificuldade();
 char **criarMatriz(int);
-void listarRanking(); 
+void listarRanking();
+void inicializarRanking();
+void verificarRank(Jogo);
 
 int main(int argc, char *argv[]) {
 	setlocale(LC_ALL, "Portuguese");
@@ -109,7 +111,7 @@ void iniciarJogo(char *jogador, int tamanho, int novoJogo) {
 		//jogo.tabuleiro = criarMatriz(tamanho);
 		//jogo.tabuleiroJogo = criarMatriz(tamanho);
 		jogo.score = 0;
-		jogo.vidas = 3;
+		jogo.vidas = 300;
 		jogo.dificuldade = tamanho/2;
 	} else {
 		jogo = carregarJogo(fp);
@@ -233,7 +235,9 @@ void iniciarJogo(char *jogador, int tamanho, int novoJogo) {
 		printf("\nScore: %d", jogo.score);
 		jogo.score += jogo.vidas;
 		printf("\nScore + vidas: %d\n\n", jogo.score);
-		//verificarRank(jogo);
+		if (!verificarArquivo("ranking", ".rf"))
+			inicializarRanking();
+		verificarRank(jogo);
 	}
 	
 	// Remove um arquivo assim que o jogo acaba
@@ -247,13 +251,16 @@ void listarRanking(){
 	FILE *fp;
 	Rank rank;
 	
+	if (!verificarArquivo("ranking", ".rf"))
+		inicializarRanking();
+	
 	system("cls");
 	printf("\n");
 	printf(" ");
-	for (i = 0; i < 60; i++) printf("_");
+	for (i = 0; i < 61; i++) printf("_");
 	
-	printf("\n| Nº | %11sJogador%11s | Score | %1sDificuldade%1s |\n", "", "","",""); // Cabecalho
-	printf("|----+-------------------------------+-------+---------------|\n");
+	printf("\n| Nº | %11sJogador%11s | Score | %1sDificuldade%1s  |\n", "", "","",""); // Cabecalho
+	printf("|----+-------------------------------+-------+----------------|\n");
 	
 	// Parte lógica
 	fp = abrirArquivo((char *) "ranking", (char *) ".rf");
@@ -263,22 +270,25 @@ void listarRanking(){
 	for (i=0; i<10; i++) {
 		switch (rank.lista[i].dificuldade) {
 			case 1:
-				printf("| %2d | %-30s | %5d | Café com leite |\n", i+1, rank.lista[i].jogador, rank.lista[i].score);
+				printf("| %2d | %-29s | %5d | Café com leite |\n", i+1, rank.lista[i].jogador, rank.lista[i].score);
 				break;
 			case 2:
-				printf("| %2d | %-30s | %5d | Facil          |\n", i+1, rank.lista[i].jogador, rank.lista[i].score, rank.lista[i].dificuldade);
+				printf("| %2d | %-29s | %5d | Facil          |\n", i+1, rank.lista[i].jogador, rank.lista[i].score, rank.lista[i].dificuldade);
 				break;
 			case 3:
-				printf("| %2d | %-30s | %5d | Medio          |\n", i+1, rank.lista[i].jogador, rank.lista[i].score, rank.lista[i].dificuldade);
+				printf("| %2d | %-29s | %5d | Medio          |\n", i+1, rank.lista[i].jogador, rank.lista[i].score, rank.lista[i].dificuldade);
 				break;
 			case 4:
-				printf("| %2d | %-30s | %5d | Dificil        |\n", i+1, rank.lista[i].jogador, rank.lista[i].score, rank.lista[i].dificuldade);
+				printf("| %2d | %-29s | %5d | Dificil        |\n", i+1, rank.lista[i].jogador, rank.lista[i].score, rank.lista[i].dificuldade);
+				break;
+			default:
+				printf("| %2d | %-29s | %5d | BOT            |\n", i+1, rank.lista[i].jogador, rank.lista[i].score, rank.lista[i].dificuldade);
 				break;
 		}
 	}
 	
 	// Linha de baixo da tabela
-	printf("|____|_______________________________|_______|_______________|\n");
+	printf("|____|_______________________________|_______|________________|\n");
 	system("pause");
 }
 
@@ -287,17 +297,46 @@ void verificarRank(Jogo jogo) {
 	Rank rank;
 	int i, posicaoGarantida=11;
 	
-	fp = abrirArquivo((char *) "ranking", (char *) ".rf");
+	//fp = abrirArquivo((char *) "ranking", (char *) ".rf");
+	fp = fopen("ranking.rf", "r+b");
+	
 	rank = carregarRank(fp);
 	
-	for (i=10; i>0; i--) {
+	for (i=9; i>=0; i--) {
 		if (jogo.score > rank.lista[i].score) posicaoGarantida = i;
 		else break;
 	}
+	
+	if (posicaoGarantida < 10) {
+		for (i=9; i>posicaoGarantida; i--) {
+			rank.lista[i] = rank.lista[i-1];
+		}
+		rank.lista[i] = jogo;
+	}
+	
+	fseek(fp, 0, SEEK_SET);
+	gravarRank(fp, rank);
+	fclose(fp);
 }
 
-void inicializarRank() {
-
+void inicializarRanking() {
+	FILE *fp;
+	Rank rank;
+	int i;
+	
+	fp = abrirArquivo((char *) "ranking", (char *) ".rf");
+	fclose(fp);
+	fp = fopen("ranking.rf", "r+b");
+	
+	for (i=10; i>0; i--) {
+		strcpy(rank.lista[i].jogador, "");
+		rank.lista[i].score = 0;
+		rank.lista[i].dificuldade = 0;
+	}
+	
+	fseek(fp, 0, SEEK_SET);
+	gravarRank(fp, rank);
+	fclose(fp);
 }
 
 int dificuldade() {
