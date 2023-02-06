@@ -13,7 +13,7 @@
 int espacosVazios(char **, int);
 void imprimeTabuleiro(char **, int);
 int prepararJogo();
-void iniciarJogo(char *, int);
+void iniciarJogo(char *, int, int);
 int dificuldade();
 char **criarMatriz(int);
 
@@ -59,38 +59,66 @@ int main(int argc, char *argv[]) {
 
 int prepararJogo() {
 	char nome[30];
-	char *nome_arquivo;
 	int tamanho;
+	int novoJogo=1;
 	
 	system("cls");
 	printf("Digite o nome do jogador: ");
 	gets(nome);
+	fflush(stdin);
 	
-	tamanho = dificuldade();
-	if (tamanho != 0)
-		iniciarJogo(nome, tamanho);
+	// Verifica se já existe um jogo
+	if (verificarArquivo(nome, extensao)) {
+		int escolha;
+		do {
+			system("cls");
+			printf("Um jogo antigo foi encontrado, deseja continuar ou criar um novo jogo?\n");
+			printf("1 - Continuar\n");
+			printf("2 - Novo jogo\n");
+			
+			escolha = getche();
+			escolha -= 48;
+			fflush(stdin);
+			
+			if (escolha != 1 && escolha != 2) {
+				printf("Opção inválida");
+				Sleep(800);
+			}
+		} while (escolha != 1 && escolha != 2);
+		if (escolha == 1) novoJogo = 0;
+	}
+	
+	if (novoJogo)
+		tamanho = dificuldade();
+	
+	iniciarJogo(nome, tamanho, novoJogo);
 	return 0;
 }
 
-void iniciarJogo(char *jogador, int tamanho) {
+void iniciarJogo(char *jogador, int tamanho, int novoJogo) {
 	
 	system("cls");
 	
+	FILE *fp = abrirArquivo(jogador, extensao);
+	Jogo jogo;
+	
+	if (novoJogo) {
+		strcpy(jogo.jogador, jogador);
+		jogo.tabuleiro = criarMatriz(tamanho);
+		jogo.tabuleiroJogo = criarMatriz(tamanho);
+		jogo.score = 0;
+		jogo.vidas = 3;
+		jogo.dificuldade = tamanho/2;
+	} else {
+		jogo = carregarJogo(fp);
+		tamanho = jogo.dificuldade * 2;
+	}
+		
 	int numCartas = tamanho*tamanho/2;
 	char cartas[numCartas];
 	int cont=0, i, j, k;
 	int linha[2], coluna[2];
 	int invalido=0;
-	
-	Jogo jogo;
-	jogo.jogador = nome;
-	jogo.tabuleiro = criarMatriz(tamanho);
-	jogo.tabuleiroJogo = criarMatriz(tamanho);
-	jogo.score = 0;
-	jogo.vidas = 3;
-	jogo.dificuldade = tamanho/2;
-	
-	FILE *fp = abrirArquivo(jogador, extensao);
 	
 	// Inicializando cartas
 	for (i=0; i<numCartas; i++)
@@ -104,17 +132,19 @@ void iniciarJogo(char *jogador, int tamanho) {
 		}
 	}
 	
-	// Monta o tabuleiro
-	srand(time(NULL));
-	while (espacosVazios(jogo.tabuleiro, tamanho) > 0) {
-		for (k=0; k<numCartas; k++) {
-			cont=0;
-			while (cont<2) {
-				i=rand()%tamanho;
-				j=rand()%tamanho;
-				if (jogo.tabuleiro[i][j] == ' ') {
-					jogo.tabuleiro[i][j] = cartas[k];
-					cont++;
+	if (novoJogo) {
+		// Monta o tabuleiro
+		srand(time(NULL));
+		while (espacosVazios(jogo.tabuleiro, tamanho) > 0) {
+			for (k=0; k<numCartas; k++) {
+				cont=0;
+				while (cont<2) {
+					i=rand()%tamanho;
+					j=rand()%tamanho;
+					if (jogo.tabuleiro[i][j] == ' ') {
+						jogo.tabuleiro[i][j] = cartas[k];
+						cont++;
+					}
 				}
 			}
 		}
@@ -156,8 +186,15 @@ void iniciarJogo(char *jogador, int tamanho) {
 				}
 				
 				// Verifica se a posicao nao esta ocupada
-				if (jogo.tabuleiroJogo[linha[i]][coluna[i]] == '*')
+				if (jogo.tabuleiroJogo[linha[i]][coluna[i]] == '*') {
 					jogo.tabuleiroJogo[linha[i]][coluna[i]] = jogo.tabuleiro[linha[i]][coluna[i]];
+					
+					// Grava tudo em cada jogada 
+					limparArquivo(jogador, extensao);
+					fp = abrirArquivo(jogador, extensao);
+					gravarJogo(fp, jogo);
+					fclose(fp);
+				}
 				else {
 					printf("A posicao ja foi revelada!");
 					Sleep(800);
@@ -169,23 +206,25 @@ void iniciarJogo(char *jogador, int tamanho) {
 		}
 		system("cls");
 		imprimeTabuleiro(jogo.tabuleiroJogo, tamanho);
+		
+		// Errou o par
 		if (jogo.tabuleiroJogo[linha[0]][coluna[0]] != jogo.tabuleiroJogo[linha[1]][coluna[1]]) {
 			printf("\nNope");
 			Sleep(800);
 			jogo.tabuleiroJogo[linha[0]][coluna[0]] = '*';
 			jogo.tabuleiroJogo[linha[1]][coluna[1]] = '*';
 		}
-		else //caso não tenha errado, score +1
+		else // Acertou o par
 			jogo.score++;
 			
-	} while (linha[i]+coluna[i]!=6);
+	} while (espacosVazios(jogo.tabuleiroJogo, tamanho) != 0);
 }
 
 int dificuldade() {
 	int continuar = 0;
 	int dificuldade;
 	
-	do{
+	do {
 		system("cls");
 		printf("\n 0 - Voltar ao Menu");
 		printf("\n 1 - Café com leite");
@@ -228,7 +267,7 @@ int espacosVazios(char **matriz, int tamanho) {
 	int cont=0, i, j;
 	for (i=0; i<tamanho; i++)
 		for (j=0; j<tamanho; j++) 
-			if (matriz[i][j] == ' ')
+			if (matriz[i][j] == ' ' || matriz[i][j] == '*')
 				cont++;
 	if (cont != 0)
 		return cont+1;

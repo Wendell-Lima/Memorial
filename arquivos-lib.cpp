@@ -3,18 +3,20 @@
 #include <string.h>
 
 typedef struct {
-	char jogador;
+	int dificuldade;
+	char jogador[30];
 	char **tabuleiro;
 	char **tabuleiroJogo;
 	int score;
 	int vidas;
-	int dificuldade;
 } Jogo;
 
 // Verifica se um arquivo existe ou nao no mesmo nivel de pastas
-int verificarArquivo(char *nome, char *extensao) {
+int verificarArquivo(char nome[30], char *extensao) {
 	FILE *fp;
-	char *nome_arquivo = strcat(nome, extensao);
+	char nome_arquivo[40];
+	strcpy(nome_arquivo, nome);
+	strcat(nome_arquivo, extensao);
 	
 	fp = fopen(nome_arquivo, "rb");
 	if (!fp) { 
@@ -25,23 +27,46 @@ int verificarArquivo(char *nome, char *extensao) {
 	return 1;
 }
 
-void criarArquivo(char *nome, char *extensao) {
+void criarArquivo(char nome[30], char *extensao) {
 	FILE *fp;
-	char *nome_arquivo = strcat(nome, extensao);
+	char nome_arquivo[40];
+	strcpy(nome_arquivo, nome);
+	strcat(nome_arquivo, extensao);
 	
 	fp = fopen(nome_arquivo, "wb");
 	fclose(fp);
 }
 
-FILE *abrirArquivo(char *nome, char *extensao) {
+FILE *abrirArquivo(char nome[30], char *extensao) {
 	FILE *fp;
-	char *nome_arquivo = strcat(nome, extensao);
+	char nome_arquivo[40];
+	strcpy(nome_arquivo, nome);
+	strcat(nome_arquivo, extensao);
 	
 	fp = fopen(nome_arquivo, "a+b");
-	
 	return fp;
 }
 
 void gravarJogo(FILE *fp, Jogo jogo) {
+	fseek(fp, 0, SEEK_SET);
 	fwrite(&jogo, sizeof(jogo), 1, fp);
+}
+
+Jogo carregarJogo(FILE *fp) {
+	Jogo jogo;
+	
+	fseek(fp, 0, SEEK_SET);
+	fread(&jogo, sizeof(Jogo), 1, fp);
+	return jogo;
+}
+
+void limparArquivo(char nome[30], char *extensao) {
+	FILE *fp;
+	char nome_arquivo[40];
+	strcpy(nome_arquivo, nome);
+	strcat(nome_arquivo, extensao);
+	
+	fp = fopen(nome_arquivo, "wb");
+	
+	fclose(fp);
 }

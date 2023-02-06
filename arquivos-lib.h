@@ -2,16 +2,19 @@
 #define arquivoslib
 
 typedef struct {
+	int dificuldade;
+	char jogador[30];
 	char **tabuleiro;
 	char **tabuleiroJogo;
 	int score;
 	int vidas;
-	int dificuldade;
 } Jogo;
 
-int verificarArquivo(char *, char *);
-void criarArquivo(char *, char *);
-FILE *abrirArquivo(char *, char *);
-void gravarDados(FILE *, Jogo);
+int verificarArquivo(char[30], char *);
+void criarArquivo(char[30], char *);
+FILE *abrirArquivo(char[30], char *);
+void gravarJogo(FILE *, Jogo);
+Jogo carregarJogo(FILE *);
+void limparArquivo(char[30], char *);
 
 #endif
